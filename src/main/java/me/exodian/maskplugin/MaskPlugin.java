@@ -111,14 +111,12 @@ public class MaskPlugin extends JavaPlugin {
                     scoreboard.getTeam(oldTeam).addEntry(p.getName());
                     p.sendMessage(ChatColor.DARK_RED + "[InvisHelm] Your name-tag is unHidden!");
                     /////////////// Essentials Hider ///////////////////////////
-                    for (User user : ess.getOnlineUsers()) {
-                        if (!user.isAuthorized("essentials.vanish.see")) {
-                            user.getBase().hidePlayer(user.getBase());
-                        }
+                    User user = ess.getUser(p.getName());
+                    for (Player pl : ess.getOnlinePlayers()) {
+                       pl.showPlayer(user.getBase());
                     }
-                    User user2 = ess.getUser(p.getName());
-                    user2.setHidden(true);
-                    ess.getVanishedPlayers().add(p.getName());
+                    user.setHidden(false);
+                    ess.getVanishedPlayers().remove(p.getName());  
                 }
             }
 
@@ -131,16 +129,15 @@ public class MaskPlugin extends JavaPlugin {
                 scoreboard.getTeam(teamName).addEntry(p.getName());
                 p.sendMessage(ChatColor.DARK_RED + "[InvisHelm] Your name-tag is Hidden!");
                 /////////////// Essentials Hider ///////////////////////////
-                User user = ess.getUser(p.getName());
-                for (Player pl : ess.getOnlinePlayers()) {
-                    pl.showPlayer(user.getBase());
-                }
-                user.setHidden(false);
-                ess.getVanishedPlayers().remove(p.getName());
+                    for (User user : ess.getOnlineUsers()) {
+                        if (!user.isAuthorized("essentials.vanish.see")) {
+                            user.getBase().hidePlayer(user.getBase());
+                        }
+                    }
+                    User user2 = ess.getUser(p.getName());
+                    user2.setHidden(true);
+                    ess.getVanishedPlayers().add(p.getName());
             }
-
-
-
             saveConfig();
         }
 }
