@@ -98,27 +98,49 @@ public class MaskPlugin extends JavaPlugin {
         private void onArmorUsage(ArmorEquipEvent event) {
             final Player p = event.getPlayer();
             final Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
-            try {
-                if (event.getOldArmorPiece().equals(invisHelm)) {
-                    if (scoreboard.getTeam(teamName).hasEntry(p.getName())) {
-                        scoreboard.getTeam(teamName).removeEntry(p.getName());
-                        final String oldTeam = getConfig().getString(p.getName());
-                        scoreboard.getTeam(oldTeam).addEntry(p.getName());
-                        p.sendMessage(ChatColor.DARK_RED + "[InvisHelm] Your name-tag is unHidden!");
+
+            //System.out.print("EVENT STARTED");
+            ItemStack OldArmor = event.getOldArmorPiece();
+            ItemStack NewArmor = event.getNewArmorPiece();
+
+
+            if(OldArmor != null && OldArmor.equals(invisHelm)){
+                if (scoreboard.getTeam(teamName).hasEntry(p.getName())) {
+                    scoreboard.getTeam(teamName).removeEntry(p.getName());
+                    final String oldTeam = getConfig().getString(p.getName());
+                    scoreboard.getTeam(oldTeam).addEntry(p.getName());
+                    p.sendMessage(ChatColor.DARK_RED + "[InvisHelm] Your name-tag is unHidden!");
+                    /////////////// Essentials Hider ///////////////////////////
+                    for (User user : ess.getOnlineUsers()) {
+                        if (!user.isAuthorized("essentials.vanish.see")) {
+                            user.getBase().hidePlayer(user.getBase());
+                        }
                     }
-                } else if (event.getNewArmorPiece().equals(invisHelm)) {
-                    final Team team = p.getScoreboard().getPlayerTeam(p);
-                    final String oldName = team.getName();
-                    getConfig().set(p.getName(), oldName);
-                    scoreboard.getTeam(teamName).addEntry(p.getName());
-                    p.sendMessage(ChatColor.DARK_RED + "[InvisHelm] Your name-tag is Hidden!");
+                    User user2 = ess.getUser(p.getName());
+                    user2.setHidden(true);
+                    ess.getVanishedPlayers().add(p.getName());
                 }
             }
-            catch(Exception e){
-                p.sendMessage(ChatColor.DARK_RED + "" + ChatColor.ITALIC + "[InvisHelm] Error. Try Equipping the Helm through your inventory.");
-                System.out.print(e.toString());
+
+
+
+            else if(NewArmor != null && NewArmor.equals(invisHelm)){
+                final Team team = p.getScoreboard().getPlayerTeam(p);
+                final String oldName = team.getName();
+                getConfig().set(p.getName(), oldName);
+                scoreboard.getTeam(teamName).addEntry(p.getName());
+                p.sendMessage(ChatColor.DARK_RED + "[InvisHelm] Your name-tag is Hidden!");
+                /////////////// Essentials Hider ///////////////////////////
+                User user = ess.getUser(p.getName());
+                for (Player pl : ess.getOnlinePlayers()) {
+                    pl.showPlayer(user.getBase());
+                }
+                user.setHidden(false);
+                ess.getVanishedPlayers().remove(p.getName());
             }
+
+
+
             saveConfig();
         }
-    }
 }
